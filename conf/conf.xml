@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<recipe>
+	<objects>		
+		<!-- 任务生产者 -->
+		<object id="producer1" class="producer.Producer" singleton="true">
+			<property name="taskDistributor">
+				<ref id="probeDataDistributor"></ref>
+			</property>
+		</object>
+		<!-- 任务分发者-->
+		<object id="probeDataDistributor" class="myTaskDistributor.ProbeDataDistributor" singleton="true">
+			<property name="producer">
+				<ref id="producer1"></ref>
+			</property>
+		</object>
+	</objects>
+	<config>
+		<dbpool>
+			<url>jdbc:mysql://localhost:3306/wcache?characterEncoding=utf8</url>
+			<user>root</user>
+			<password></password>
+			<poolSize>10</poolSize>
+		</dbpool>
+		<threadPool>
+			<poolSize>10</poolSize>
+		</threadPool>
+		<redisPool>
+			<port>6379</port>
+		</redisPool>
+	</config>
+</recipe>

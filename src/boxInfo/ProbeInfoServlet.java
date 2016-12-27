@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -50,15 +49,17 @@ public class ProbeInfoServlet extends HttpServlet {
 					time = time.substring(0, 10);
 				}
 
-				paramsMap.add("String_" + box_mac);
-				paramsMap.add("long_" + createtime);
-				paramsMap.add("String_" + mac);
-				paramsMap.add("int_" + rssi1);
-				paramsMap.add("int_" + rssi2);
-				paramsMap.add("int_" + rssi3);
-				paramsMap.add("long_" + time);
+				if (Integer.parseInt(rssi1) > -70) {
+					paramsMap.add("String_" + box_mac);
+					paramsMap.add("long_" + createtime);
+					paramsMap.add("String_" + mac);
+					paramsMap.add("int_" + rssi1);
+					paramsMap.add("int_" + rssi2);
+					paramsMap.add("int_" + rssi3);
+					paramsMap.add("long_" + time);
 
-				paramsList.add(paramsMap);
+					paramsList.add(paramsMap);
+				}
 			}
 
 			if (!paramsList.isEmpty()) {

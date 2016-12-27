@@ -32,7 +32,4 @@ public class ProbeDataDistributor extends TaskDistributor {
 		ThreadPool.get_instance().add_task(task);// 加入到线程池中
 	}
 	
-	// public void test() {
-	// System.out.println(this.producer);
-	// }
 }

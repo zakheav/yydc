@@ -4,9 +4,9 @@ import dbpool.DBpool;
 import preprocess.Handler;
 import serverUtil.Sql;
 
-public class InsertInfoHandler extends Handler {
+public class InsertInfoHandler implements Handler {
 	@Override
-	protected void preprocess(Object params) {
+	public void preprocess(Object params) {
 		Sql sql = (Sql)params;
 		DBpool.get_instance().executeBatchesUpdate(sql);
 	}

@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.Map;
 import dbpool.Query;
 import preprocess.Handler;
-import serverUtil.CacheViaRedis;
+import serverUtil.MemCache;
 import serverUtil.Sql;
 
-public class ProbeDataPreprocessHandler extends Handler {
+public class ProbeDataPreprocessHandler implements Handler {
 	private Long duration = new Long(3600);
 
 	private long get_now() {
@@ -18,7 +18,7 @@ public class ProbeDataPreprocessHandler extends Handler {
 	}
 
 	@Override
-	protected void preprocess(Object params) {
+	public void preprocess(Object params) {
 		Sql sql = (Sql) params;
 		String boxMac = (sql.get_paramsList().get(0).get(0).split("_"))[1];// 上传信息的盒子
 		Long now = get_now();// 当前时间段的起始
@@ -63,6 +63,6 @@ public class ProbeDataPreprocessHandler extends Handler {
 				hash.put(mac, true);
 			}
 		}
-		CacheViaRedis.getInstance().set_boxProbenumberNow(boxMac, createTime, probeNum);//记录当前盒子的在线数目
+		MemCache.getInstance().set_boxProbenumberNow(boxMac, createTime, probeNum);// 记录当前盒子的在线数目
 	}
 }

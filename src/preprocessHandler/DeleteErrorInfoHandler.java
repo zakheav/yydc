@@ -5,10 +5,10 @@ import java.util.List;
 import preprocess.Handler;
 import serverUtil.Sql;
 
-public class DeleteErrorInfoHandler extends Handler {
+public class DeleteErrorInfoHandler implements Handler {
 	private Long time = new Long(1451577600 * 1000);
 	@Override
-	protected void preprocess(Object params) {
+	public void preprocess(Object params) {
 		Sql sql = (Sql)params;
 		String sqlStr = sql.get_sqlStr();
 		List<List<String>> paramsList = sql.get_paramsList();

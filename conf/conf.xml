@@ -22,7 +22,7 @@
 			<poolSize>10</poolSize>
 		</dbpool>
 		<threadPool>
-			<poolSize>10</poolSize>
+			<poolSize>100</poolSize>
 		</threadPool>
 		<redisPool>
 			<port>6379</port>

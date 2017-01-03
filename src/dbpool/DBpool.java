@@ -201,6 +201,7 @@ public class DBpool {
 				e_stmt.executeUpdate(queryString);
 				return true;
 			} catch (SQLException e2) {
+				System.out.println(e2);
 				log.error(DBpool.class, e2);
 				return false;
 			} finally {// 释放资源
@@ -208,6 +209,7 @@ public class DBpool {
 					e_stmt.close();
 					release_conection(e_conn);
 				} catch (SQLException e3) {
+					System.out.println(e3);
 					log.error(DBpool.class, e3);
 				}
 			}
@@ -221,6 +223,7 @@ public class DBpool {
 					conn.close();
 				}
 			} catch (SQLException e4) {
+				System.out.println(e4);
 				log.error(DBpool.class, e4);
 			}
 		}

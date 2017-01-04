@@ -20,7 +20,7 @@ class DataStruct {
 }
 
 public class OfferData {// 从DataSource中提取数据，并且清洗，然后通过get_nextData提供给FPTree用于构造
-	private int freqThreshold = 2;
+	private int freqThreshold = 50;
 	private Map<Integer, Integer> dataFreq = new HashMap<Integer, Integer>();// 存储元素出现的次数。key是元素，value是元素出现的次数
 	private DataSource dataSource;
 
@@ -50,13 +50,18 @@ public class OfferData {// 从DataSource中提取数据，并且清洗，然后�
 	}
 
 	private void countFreq() {
-		Integer[] rawData = dataSource.get_nextData();
-		while (rawData != null) {
+		Map<String, Object> raw = dataSource.get_nextData();
+		
+		while (raw != null) {
+			Integer[] rawData = (Integer[]) raw.get("data");
+			Integer dataCounter = (Integer) raw.get("counter");
+			
 			for (Integer e : rawData) {
 				Integer old = dataFreq.get(e) == null ? 0 : dataFreq.get(e);
-				dataFreq.put(e, old + 1);
+				dataFreq.put(e, old + dataCounter);
 			}
-			rawData = dataSource.get_nextData();
+			
+			raw = dataSource.get_nextData();
 		}
 		Iterator<Entry<Integer, Integer>> it = dataFreq.entrySet().iterator();
 		while (it.hasNext()) {// 清除掉出现频率小于阈值的元素
@@ -95,10 +100,17 @@ public class OfferData {// 从DataSource中提取数据，并且清洗，然后�
 		return data;
 	}
 
-	public Integer[] get_nextData() {
-		Integer[] rawData = dataSource.get_nextData();
-		if (rawData == null)
+	public Map<String, Object> get_nextData() {// 返回值key="data"对应的是清洗后的事务，key="counter"对应事物出现的次数
+		Map<String, Object> raw = dataSource.get_nextData();
+		if (raw == null)
 			return null;
-		return clean_data(rawData);
+		Integer[] rawData = (Integer[]) raw.get("data");
+		Integer counter = (Integer) raw.get("counter");
+		
+		Map<String, Object> result = new HashMap<String, Object>();
+		result.put("data", clean_data(rawData));
+		result.put("counter", counter);
+		return result;
 	}
 }
+

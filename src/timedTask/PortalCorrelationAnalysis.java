@@ -9,7 +9,7 @@ import fp_growth.FP_growth;
 public class PortalCorrelationAnalysis implements Runnable {
 	@Override
 	public void run() {
-		// generate_mac_portalTable();// 生成每个客户访问过的店铺关联表
+		generate_mac_portalTable();// 生成每个客户访问过的店铺关联表
 		FP_growth fpg = new FP_growth();
 		Set<List<Integer>> result = fpg.start();
 		for(List<Integer> freqSet : result) {
@@ -43,6 +43,9 @@ public class PortalCorrelationAnalysis implements Runnable {
 	}
 
 	public static void main(String[] args) {
+		long begin = System.currentTimeMillis();
 		new PortalCorrelationAnalysis().run();
+		long cost = System.currentTimeMillis() - begin;
+		System.out.println("cost:" + cost);
 	}
 }

@@ -1,6 +1,7 @@
 package fp_growth;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +20,7 @@ public class DBDataSource implements DataSource {
 		}
 	}
 
-	public Integer[] get_nextData() {
+	public Map<String, Object> get_nextData() {
 		if (macList_idx == macList.size()) {
 			return null;
 		} else {
@@ -30,7 +31,10 @@ public class DBDataSource implements DataSource {
 			for (int i = 0; i < results.size(); ++i) {
 				portals[i] = (Integer) results.get(i).get("portalId");
 			}
-			return portals;
+			Map<String, Object> result = new HashMap<String, Object>();
+			result.put("data", portals);
+			result.put("counter", 1);
+			return result;
 		}
 	}
 

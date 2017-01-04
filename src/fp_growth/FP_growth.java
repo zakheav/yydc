@@ -29,7 +29,7 @@ public class FP_growth {
 			dataSource.clear_cache();// 释放内存（必要）
 			
 			Set<List<Integer>> child_freqSetList = new HashSet<List<Integer>>();
-			if (child_fptree.root.child.isEmpty()) {// 是空的树
+			if (child_fptree.root.children.isEmpty()) {// 是空的树
 				List<Integer> set = new ArrayList<Integer>();
 				child_freqSetList.add(set);
 			} else {
@@ -46,16 +46,5 @@ public class FP_growth {
 
 	public Set<List<Integer>> start() {
 		return find_freqSet(FPTree);
-	}
-	
-	public static void main(String[] args) {
-		FP_growth fpg = new FP_growth();
-		Set<List<Integer>> result = fpg.start();
-		for(List<Integer> freqSet : result) {
-			System.out.println();
-			for(Integer e : freqSet) {
-				System.out.print(e+", ");
-			}
-		}
 	}
 }

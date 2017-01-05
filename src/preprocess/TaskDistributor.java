@@ -20,23 +20,27 @@ public abstract class TaskDistributor extends Thread {
 	}
 	
 	public void run() {
-		
-		while(true) {
-			while(!producer.taskBuffer.isEmpty()) {
-				Object o = producer.taskBuffer.get_element();
-				distribute_task(o);
-			}
-			while(!SpillTaskQueue.overFlowTasks.isEmpty()) {// 检查溢出区是否存在任务
-				Object o = SpillTaskQueue.overFlowTasks.poll();
-				if(o != null) {
-					distribute_task(o);
+
+		while (true) {
+			Object task = null;
+			do {
+				task = producer.taskBuffer.get_element();
+				if (task != null)
+					distribute_task(task);
+			} while (task != null);
+
+			do {// 检查溢出区是否存在任务
+				task = SpillTaskQueue.overFlowTasks.poll();
+				if (task != null) {
+					distribute_task(task);
 				}
-			}
+			} while (task != null);
+
 			this.block = true;
 			mb = memoryBarrier;// 在block变量之后添加内存屏障，该指令后面的指令不会被重排序到前面
-			
+
 			synchronized (producer.taskBuffer) {
-				while(producer.taskBuffer.isEmpty()) {
+				while (producer.taskBuffer.isEmpty()) {
 					try {
 						producer.taskBuffer.wait();
 					} catch (InterruptedException e) {

@@ -1,9 +1,7 @@
 package fp_growth;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
-import java.util.Queue;
 
 public class FP_tree {
 	public Map<Integer, TreeNode> headerList = new HashMap<Integer, TreeNode>();// nodeList的头节点表
@@ -26,7 +24,6 @@ public class FP_tree {
 			map = od.get_nextData();
 		}
 
-		// display();
 	}
 
 	private void add_pathToTree(Integer[] path, int counter) {
@@ -48,31 +45,4 @@ public class FP_tree {
 		}
 	}
 
-	private void display() {
-		Queue<TreeNode> queue = new LinkedList<TreeNode>();
-		Queue<Integer> levelQueue = new LinkedList<Integer>();
-		queue.offer(root);
-		levelQueue.offer(0);
-		int nowLevel = 0;
-		while (!queue.isEmpty()) {
-			int level = levelQueue.poll();
-			TreeNode nowNode = queue.poll();
-			if (level > nowLevel) {
-				System.out.println();
-				nowLevel = level;
-			}
-			if (nowNode.root)
-				System.out.print(nowNode.value + ":" + nowNode.count + "_p:null ");
-			else
-				System.out.print(nowNode.value + ":" + nowNode.count + "_p:" + nowNode.parent.value + " ");
-			for (Integer e : nowNode.children.keySet()) {
-				queue.offer(nowNode.children.get(e));
-				levelQueue.offer(nowLevel + 1);
-			}
-		}
-	}
-
-	public static void main(String[] args) {
-		new FP_tree(new DBDataSource());
-	}
 }

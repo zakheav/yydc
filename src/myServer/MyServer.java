@@ -21,7 +21,7 @@ public class MyServer {
 			ThreadPool.get_instance();// 启动线程池
 			DBpool.get_instance();// 启动连接池
 			ProducerCustomerSet.get_instance();// 组装生产者和任务分发者，并启动分发者对象
-			MemCache.getInstance();// 初始化redis
+			MemCache.getInstance();// 初始化缓存
 			
 			Server server = new Server();
 			ServerConnector connector = new ServerConnector(server);

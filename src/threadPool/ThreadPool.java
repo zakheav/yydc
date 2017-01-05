@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
 import lockFreeParallelFrameWorkUtil.RingBuffer;
 import serverUtil.XML;
 
@@ -57,16 +56,20 @@ public class ThreadPool {
 		public void run() {
 			int noBlockTimer = 50;// 用于减少不必要的线程阻塞,尤其在大量简单的小任务加入线程池的时候
 			while (true) {
-				while (!taskBuffer.isEmpty()) {
-					Runnable task = (Runnable) taskBuffer.get_element();
-					task.run();
-				}
-				while (!overFlowTasks.isEmpty()) {// 检查溢出区是否存在任务
-					Runnable task = overFlowTasks.poll();
+				Object task = null;
+				do {
+					task = taskBuffer.get_element();
 					if (task != null) {
-						task.run();
+						((Runnable) task).run();
 					}
-				}
+				} while (task != null);
+
+				do {// 检查溢出区是否存在任务
+					task = overFlowTasks.poll();
+					if (task != null) {
+						((Runnable) task).run();
+					}
+				} while (task != null);
 
 				if (noBlockTimer > 0) {
 					--noBlockTimer;
@@ -97,9 +100,7 @@ public class ThreadPool {
 		if (idx == WORK_NUM)
 			--idx;
 		Worker worker = workerList.get(idx);
-		if (!worker.taskBuffer.isFull()) {
-			worker.taskBuffer.add_element(task);
-
+		if (worker.taskBuffer.add_element(task)) {// 可以向buffer中添加任务（buffer没有满）
 			memoryBarrier = true;// 内存屏障，保证之前的指令不会重排序到后面
 			if (worker.block) {// 这个worker在阻塞等待新的任务
 				synchronized (worker.taskBuffer) {

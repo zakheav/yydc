@@ -24,7 +24,7 @@ public class PortalCorrelationAnalysis implements Runnable {
 		}
 	}
 
-	private void generate_mac_portalTable() {
+	private void generate_mac_portalTable() { 
 		// 先为表yydc_probe1添加索引
 		String addIndex = "alter table yydc_probe1 add index boxmacIdx(box_mac)";
 		DBpool.get_instance().executeUpdate(addIndex);

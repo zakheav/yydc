@@ -3,7 +3,7 @@ package sparseMatrix;
 import java.util.List;
 
 public class MatrixAddTask implements Runnable {
-	private List<Triad> result;
+	private Syn_triadList result;
 	private SparseMatrix sma;
 	private SparseMatrix smb;
 	private final int i;
@@ -12,7 +12,7 @@ public class MatrixAddTask implements Runnable {
 	private final int a_rowEnd;
 	private final int b_rowEnd;
 
-	public MatrixAddTask(List<Triad> result, int i, SparseMatrix a, SparseMatrix b, int a_rowBegin, int a_rowEnd,
+	public MatrixAddTask(Syn_triadList result, int i, SparseMatrix a, SparseMatrix b, int a_rowBegin, int a_rowEnd,
 			int b_rowBegin, int b_rowEnd) {// 矩阵a的i行，矩阵b的i行
 		this.result = result;
 		this.sma = a;
@@ -33,51 +33,37 @@ public class MatrixAddTask implements Runnable {
 		if (ptra == -1) {// a矩阵在i行是全0
 			if (ptrb != -1) {// b矩阵在i行有非0值
 				while (ptrb <= b_rowEnd) {
-					synchronized (result) {
-						result.add(new Triad(i, btl.get(ptrb).colIdx, btl.get(ptrb).value));
-					}
+					result.add(new Triad(i, btl.get(ptrb).colIdx, btl.get(ptrb).value));
 					++ptrb;
 				}
 			}
 		} else if (ptrb == -1) {// b矩阵在i行是全0
 			if (ptra != -1) {// a矩阵在i行有非0值
 				while (ptra <= a_rowEnd) {
-					synchronized (result) {
-						result.add(new Triad(i, atl.get(ptra).colIdx, atl.get(ptra).value));
-					}
+					result.add(new Triad(i, atl.get(ptra).colIdx, atl.get(ptra).value));
 					++ptra;
 				}
 			}
 		} else {
 			while (ptra <= a_rowEnd && ptrb <= b_rowEnd) {
 				if (atl.get(ptra).colIdx > btl.get(ptrb).colIdx) {
-					synchronized (result) {
-						result.add(new Triad(i, btl.get(ptrb).colIdx, btl.get(ptrb).value));
-					}
+					result.add(new Triad(i, btl.get(ptrb).colIdx, btl.get(ptrb).value));
 					++ptrb;
 				} else if (atl.get(ptra).colIdx < btl.get(ptrb).colIdx) {
-					synchronized (result) {
-						result.add(new Triad(i, atl.get(ptra).colIdx, atl.get(ptra).value));
-					}
+					result.add(new Triad(i, atl.get(ptra).colIdx, atl.get(ptra).value));
 					++ptra;
 				} else {
-					synchronized (result) {
-						result.add(new Triad(i, atl.get(ptra).colIdx, atl.get(ptra).value + btl.get(ptrb).value));
-					}
+					result.add(new Triad(i, atl.get(ptra).colIdx, atl.get(ptra).value + btl.get(ptrb).value));
 					++ptra;
 					++ptrb;
 				}
 			}
 			while (ptra <= a_rowEnd) {
-				synchronized (result) {
-					result.add(new Triad(i, atl.get(ptra).colIdx, atl.get(ptra).value));
-				}
+				result.add(new Triad(i, atl.get(ptra).colIdx, atl.get(ptra).value));
 				++ptra;
 			}
 			while (ptrb <= b_rowEnd) {
-				synchronized (result) {
-					result.add(new Triad(i, btl.get(ptrb).colIdx, btl.get(ptrb).value));
-				}
+				result.add(new Triad(i, btl.get(ptrb).colIdx, btl.get(ptrb).value));
 				++ptrb;
 			}
 		}

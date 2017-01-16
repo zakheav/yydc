@@ -3,7 +3,7 @@ package sparseMatrix;
 import java.util.List;
 
 public class MatrixProductTask implements Runnable {
-	private List<Triad> result;
+	private Syn_triadList result;
 	private SparseMatrix sma;
 	private SparseMatrix smb;
 	private final int i;
@@ -13,7 +13,7 @@ public class MatrixProductTask implements Runnable {
 	private final int a_rowEnd;
 	private final int b_rowEnd;
 
-	public MatrixProductTask(List<Triad> result, int i, int j, SparseMatrix a, SparseMatrix b, int a_rowBegin,
+	public MatrixProductTask(Syn_triadList result, int i, int j, SparseMatrix a, SparseMatrix b, int a_rowBegin,
 			int a_rowEnd, int b_rowBegin, int b_rowEnd) {// 矩阵a的i行，转置矩阵b的j行
 		this.result = result;
 		this.sma = a;
@@ -45,9 +45,7 @@ public class MatrixProductTask implements Runnable {
 			}
 		}
 		if (value != 0.0) {
-			synchronized (result) {
-				result.add(new Triad(i, j, value));
-			}
+			result.add(new Triad(i, j, value));
 		}
 	}
 }

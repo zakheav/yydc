@@ -19,7 +19,7 @@ class CompareByRow_col implements Comparator<Triad> {
 
 }
 
-public class SparseMatrix {// 稀疏矩阵压缩乘法、加法
+public class SparseMatrix {
 	public final int rowNum;
 	public final int colNum;
 	public List<Triad> triadList;
@@ -53,7 +53,7 @@ public class SparseMatrix {// 稀疏矩阵压缩乘法、加法
 	}
 
 	public SparseMatrix matrixProduct(SparseMatrix transMatrix) {// 传入转置后的稀疏矩阵
-		List<Triad> result = new ArrayList<Triad>();
+		Syn_triadList result = new Syn_triadList();
 		List<Runnable> taskList = new ArrayList<Runnable>();
 		// 假设本矩阵是a，传入的转置矩阵是b
 		int r = transMatrix.rowNum;
@@ -73,14 +73,14 @@ public class SparseMatrix {// 稀疏矩阵压缩乘法、加法
 				}
 			}
 			IterationThreadPool.get_instance().add_taskList(taskList);
-			return new SparseMatrix(result, rowNum, r);
+			return new SparseMatrix(result.result, rowNum, r);
 		} else {
 			return null;
 		}
 	}
 
 	public SparseMatrix matrixAdd(SparseMatrix matrix) {
-		List<Triad> result = new ArrayList<Triad>();
+		Syn_triadList result = new Syn_triadList();
 		List<Runnable> taskList = new ArrayList<Runnable>();
 		// 假设本矩阵是a，传入的矩阵是b
 		int r = matrix.rowNum;
@@ -94,7 +94,7 @@ public class SparseMatrix {// 稀疏矩阵压缩乘法、加法
 				taskList.add(new MatrixAddTask(result, i, this, matrix, a_rowBegin, a_rowEnd, b_rowBegin, b_rowEnd));
 			}
 			IterationThreadPool.get_instance().add_taskList(taskList);
-			return new SparseMatrix(result, rowNum, colNum);
+			return new SparseMatrix(result.result, rowNum, colNum);
 		} else {
 			return null;
 		}

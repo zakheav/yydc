@@ -100,16 +100,12 @@ public class ThreadPool {
 		if (idx == WORK_NUM)
 			--idx;
 		Worker worker = workerList.get(idx);
+		if (!worker.taskBuffer.add_element(task)) {// 无法向buffer中添加任务（buffer满）
+			overFlowTasks.offer(task);
+		}
 		if (worker.block) {// 这个worker在阻塞等待新的任务
 			synchronized (worker.taskBuffer) {
-				if (!worker.taskBuffer.add_element(task)) {// 无法向buffer中添加任务（buffer满）
-					overFlowTasks.offer(task);
-				}
 				worker.taskBuffer.notify();
-			}
-		} else {
-			if (!worker.taskBuffer.add_element(task)) {// 无法向buffer中添加任务（buffer满）
-				overFlowTasks.offer(task);
 			}
 		}
 	}

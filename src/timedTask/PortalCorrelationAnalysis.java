@@ -8,9 +8,13 @@ import java.util.Set;
 
 import dbpool.DBpool;
 import fp_growth.FP_growth;
+import sparseMatrix.SparseMatrix;
+import sparseMatrix.Triad;
 
 public class PortalCorrelationAnalysis implements Runnable {
 	private double reliability = 0.4;
+	private int portalNum = 100;// 总商铺数量
+	private int iterationTimes = 50;
 
 	@Override
 	public void run() {
@@ -18,9 +22,25 @@ public class PortalCorrelationAnalysis implements Runnable {
 		FP_growth fpg = new FP_growth();
 		Set<Map<String, Object>> freqSetList = fpg.start();
 		List<List<Integer>> regularList = find_correlationRegular(freqSetList);
-		for(List<Integer> regular : regularList) {
-			System.out.println(regular.get(0)+" -> "+regular.get(1));
+		SparseMatrix Pmatrix = get_transitionMatrix(regularList);
+		SparseMatrix Rmatrix = init_pageRank();
+		SparseMatrix newRmatrix;
+		SparseMatrix deltaMatrix;
+		boolean finish = false;
+		for (int i = 0; i < iterationTimes && !finish; ++i) {
+			newRmatrix = Rmatrix.scalarProduct(0.2).matrixAdd(Rmatrix.matrixProduct(Pmatrix).scalarProduct(0.8));
+			deltaMatrix = Rmatrix.matrixAdd(newRmatrix.scalarProduct(-1.0));
+			double error = 0.0;
+			for (Triad triad : deltaMatrix.triadList) {
+				error += Math.abs(triad.value);
+			}
+			if (error < 0.0001) {
+				finish = true;
+			}
+			Rmatrix = newRmatrix;
 		}
+		
+		Rmatrix.display();
 	}
 
 	private List<List<Integer>> find_correlationRegular(Set<Map<String, Object>> freqSetList) {// 发现关联规则
@@ -45,7 +65,7 @@ public class PortalCorrelationAnalysis implements Runnable {
 				Integer right = freqSet.get(1);// 关联规则的右部
 				int counterLeft = singleMap.get(left);
 				int counterRight = singleMap.get(right);
-				
+
 				// 计算可信度
 				if (counter * 1.0 / counterLeft >= reliability) {
 					List<Integer> regular = new ArrayList<Integer>();
@@ -83,6 +103,43 @@ public class PortalCorrelationAnalysis implements Runnable {
 
 		String add_idx = "alter table mac_portal add index macIdx(mac)";
 		DBpool.get_instance().executeUpdate(add_idx);
+	}
+
+	private SparseMatrix get_transitionMatrix(List<List<Integer>> regularList) {
+		Map<Integer, List<Integer>> adjTable = new HashMap<Integer, List<Integer>>();// 商铺邻接表
+		for (List<Integer> regular : regularList) {
+			if (!adjTable.containsKey(regular.get(0))) {
+				List<Integer> list = new ArrayList<Integer>();
+				adjTable.put(regular.get(0), list);
+			}
+			adjTable.get(regular.get(0)).add(regular.get(1));
+		}
+		List<Triad> triadList = new ArrayList<Triad>();
+		for (int key : adjTable.keySet()) {
+			double adjNum = adjTable.get(key).size() + 1;
+			for (int adjNode : adjTable.get(key)) {
+				double p = 1.0 / adjNum;
+				triadList.add(new Triad(adjNode, key, p));
+				// triadList.add(new Triad(key, adjNode, p));
+			}
+		}
+		// 向三元组表中加上稀疏矩阵的对角线元素
+		for (int i = 0; i < portalNum; ++i) {
+			double adjNum = adjTable.get(i) == null ? 1 : (adjTable.get(i).size() + 1);
+			double p = 1.0 / adjNum;
+			triadList.add(new Triad(i, i, p));
+		}
+		SparseMatrix transitionMatrix = new SparseMatrix(triadList, portalNum, portalNum);
+		return transitionMatrix;
+	}
+
+	private SparseMatrix init_pageRank() {// 初始化pagerank向量
+		List<Triad> triadList = new ArrayList<Triad>();
+		for (int i = 0; i < portalNum; ++i) {
+			double p = 1.0 / portalNum;
+			triadList.add(new Triad(0, i, p));
+		}
+		return new SparseMatrix(triadList, 1, portalNum);
 	}
 
 	public static void main(String[] args) {

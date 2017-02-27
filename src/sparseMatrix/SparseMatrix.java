@@ -52,6 +52,15 @@ public class SparseMatrix {
 		rowEndIdxList[nowRow] = i - 1;
 	}
 
+	public SparseMatrix scalarProduct(double scalar) {
+		List<Triad> newTriadList = new ArrayList<Triad>();
+		for (Triad triad : triadList) {
+			Triad newTriad = new Triad(triad.rowIdx, triad.colIdx, triad.value * scalar);
+			newTriadList.add(newTriad);
+		}
+		return new SparseMatrix(newTriadList, rowNum, colNum);
+	}
+
 	public SparseMatrix matrixProduct(SparseMatrix transMatrix) {// 传入转置后的稀疏矩阵
 		Syn_triadList result = new Syn_triadList();
 		List<Runnable> taskList = new ArrayList<Runnable>();

@@ -27,7 +27,8 @@ public class PortalCorrelationAnalysis implements Runnable {
 		SparseMatrix newRmatrix;
 		SparseMatrix deltaMatrix;
 		boolean finish = false;
-		for (int i = 0; i < iterationTimes && !finish; ++i) {
+		int i = 0;
+		for (i = 0; i < iterationTimes && !finish; ++i) {
 			newRmatrix = Rmatrix.scalarProduct(0.2).matrixAdd(Rmatrix.matrixProduct(Pmatrix).scalarProduct(0.8));
 			deltaMatrix = Rmatrix.matrixAdd(newRmatrix.scalarProduct(-1.0));
 			double error = 0.0;
@@ -39,7 +40,7 @@ public class PortalCorrelationAnalysis implements Runnable {
 			}
 			Rmatrix = newRmatrix;
 		}
-		
+		System.out.println(i);
 		Rmatrix.display();
 	}
 

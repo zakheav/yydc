@@ -2,10 +2,8 @@ package threadPool;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import lockFreeParallelFrameWorkUtil.RingBuffer;
-import serverUtil.XML;
 
 public class ThreadPool {
 	private List<Worker> workerList;
@@ -13,19 +11,13 @@ public class ThreadPool {
 	private final int WORK_NUM;
 	private static ThreadPool instance = new ThreadPool();
 
-	private volatile boolean memoryBarrier = true;// 提供内存屏障支持
-	@SuppressWarnings("unused")
-	private volatile boolean mb = true;// 提供内存屏障支持
-
 	private ThreadPool() {
-		Map<String, String> threadPoolConf = new XML().getThreadPoolConf();
-		this.WORK_NUM = Integer.parseInt(threadPoolConf.get("poolSize"));
+		this.WORK_NUM = 4;
 		this.workerList = new ArrayList<Worker>();
 		this.overFlowTasks = new ConcurrentLinkedQueue<Runnable>();
 		for (int i = 0; i < WORK_NUM; ++i) {
 			add_worker();
 		}
-		System.out.println("threadPool start");
 	}
 
 	public static ThreadPool get_instance() {
@@ -33,7 +25,7 @@ public class ThreadPool {
 	}
 
 	private void add_worker() {
-		RingBuffer taskBuffer = new RingBuffer(40000);
+		RingBuffer taskBuffer = new RingBuffer(65536);
 		Worker worker = new Worker(taskBuffer);
 		worker.start();
 		workerList.add(worker);
@@ -48,13 +40,8 @@ public class ThreadPool {
 			this.block = false;
 		}
 
-		public boolean isBlock() {
-			block = block;// 在block变量之前添加内存屏障，该函数前的指令不会被重排序到前面
-			return block;
-		}
-
 		public void run() {
-			int noBlockTimer = 50;// 用于减少不必要的线程阻塞,尤其在大量简单的小任务加入线程池的时候
+			int noBlockTimer = 10000;// 用于减少不必要的线程阻塞,尤其在大量简单的小任务加入线程池的时候
 			while (true) {
 				Object task = null;
 				do {
@@ -74,9 +61,8 @@ public class ThreadPool {
 				if (noBlockTimer > 0) {
 					--noBlockTimer;
 				} else {
-					noBlockTimer = 50;
+					noBlockTimer = 10000;
 					this.block = true;
-					mb = memoryBarrier;// 在block变量之后添加内存屏障，该指令后面的指令不会被重排序到前面
 
 					synchronized (taskBuffer) {
 						while (taskBuffer.isEmpty()) {
@@ -87,7 +73,6 @@ public class ThreadPool {
 							}
 						}
 						this.block = false;
-						mb = memoryBarrier;// 在block变量之后添加内存屏障，该指令后面的指令不会被重排序到前面
 					}
 				}
 			}
@@ -95,18 +80,19 @@ public class ThreadPool {
 	}
 
 	public void add_task(Runnable task) {
-
 		int idx = (int) (Math.random() * WORK_NUM);
 		if (idx == WORK_NUM)
 			--idx;
 		Worker worker = workerList.get(idx);
+
 		if (!worker.taskBuffer.add_element(task)) {// 无法向buffer中添加任务（buffer满）
 			overFlowTasks.offer(task);
 		}
+		
 		if (worker.block) {// 这个worker在阻塞等待新的任务
 			synchronized (worker.taskBuffer) {
 				worker.taskBuffer.notify();
 			}
-		}
+		} 
 	}
 }

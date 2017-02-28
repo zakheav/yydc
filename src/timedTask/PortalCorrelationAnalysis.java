@@ -35,7 +35,7 @@ public class PortalCorrelationAnalysis implements Runnable {
 			for (Triad triad : deltaMatrix.triadList) {
 				error += Math.abs(triad.value);
 			}
-			if (error < 0.0001) {
+			if (error < 0.00001) {
 				finish = true;
 			}
 			Rmatrix = newRmatrix;
